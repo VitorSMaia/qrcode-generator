@@ -36,7 +36,12 @@ def _get_user_id_from_token(token: str) -> str | None:
 
 @app.route("/")
 def home():
-    return redirect("/login-view")
+    return render_template("landing.html")
+
+
+@app.route("/landing")
+def landing():
+    return render_template("landing.html")
 
 
 @app.route("/login-view")
