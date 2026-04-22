@@ -63,6 +63,8 @@
                         <td class="p-4">
                             <button onclick="copiarLink('${item.slug}')" class="text-xs bg-gray-200 px-2 py-1 rounded">Copiar Link</button>
                             <button onclick="baixarQR('${item.slug}')" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded ml-2">Baixar QR</button>
+                            <button onclick="editarSlug('${item.slug}')" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">Editar</button>
+                            <button onclick="excluirQR('${item.slug}')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded ml-2">Excluir</button>
                         </td>
                     </tr>
                 `).join("");
@@ -116,6 +118,56 @@
 
         function baixarQR(slug) {
             window.open(`/qr/${slug}.png`, "_blank");
+        }
+
+        async function editarSlug(slugAtual) {
+            const novoSlug = prompt(`Novo identificador para "${slugAtual}":`, slugAtual);
+            if (!novoSlug || novoSlug.trim() === "" || novoSlug === slugAtual) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/qrcode/${encodeURIComponent(slugAtual)}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ novo_slug: novoSlug.trim() })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || "Nao foi possivel editar o identificador");
+                }
+
+                await carregarDashboard();
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
+        }
+
+        async function excluirQR(slug) {
+            const confirmou = confirm(`Tem certeza que deseja excluir "${slug}"?`);
+            if (!confirmou) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/qrcode/${encodeURIComponent(slug)}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || "Nao foi possivel excluir o QR Code");
+                }
+
+                await carregarDashboard();
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
         }
 
         carregarDashboard();
