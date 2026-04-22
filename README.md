@@ -1,5 +1,3 @@
-Este é um guia completo para o seu arquivo README.md. Ele foi estruturado para ser profissional, explicando desde a arquitetura até os passos de deploy, ideal para o seu portfólio.
-
 📱 QR Track: Sistema de QR Codes Dinâmicos
 Um sistema completo para geração, gerenciamento e rastreio de QR Codes. Com esta aplicação, você pode criar links rastreáveis, monitorar a quantidade de acessos em tempo real e garantir que cada usuário gerencie apenas seus próprios dados através de uma camada de autenticação robusta.
 
