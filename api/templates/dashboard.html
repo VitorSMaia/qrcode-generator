@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Meu Dashboard QR</title>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">Meus QR Codes</h1>
+            <button onclick="logout()" class="text-red-500 border border-red-500 px-4 py-1 rounded">Sair</button>
+        </div>
+
+        <div class="bg-white p-6 rounded shadow mb-8">
+            <h3 class="font-bold mb-4">Gerar Novo QR Code</h3>
+            <div class="flex gap-4">
+                <input type="text" id="slug" placeholder="Nome (ex: menu-restaurante)" class="flex-1 p-2 border rounded">
+                <input type="text" id="conteudo" placeholder="Link de destino (https://...)" class="flex-1 p-2 border rounded">
+                <button onclick="criarQR()" class="bg-green-500 text-white px-6 py-2 rounded">Gerar</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded shadow overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-4">Identificador (Slug)</th>
+                        <th class="p-4">Destino</th>
+                        <th class="p-4">Leituras</th>
+                        <th class="p-4">Acoes</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-qr"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login-view";
+        }
+
+        async function carregarDashboard() {
+            try {
+                const res = await fetch("/dashboard", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || "Falha ao carregar dashboard");
+                }
+
+                const lista = document.getElementById("lista-qr");
+                lista.innerHTML = (data || []).map((item) => `
+                    <tr class="border-t">
+                        <td class="p-4 font-mono text-indigo-600">/l/${item.slug}</td>
+                        <td class="p-4 text-gray-600 break-all">${item.conteudo_original}</td>
+                        <td class="p-4 font-bold">${item.contador}</td>
+                        <td class="p-4">
+                            <button onclick="copiarLink('${item.slug}')" class="text-xs bg-gray-200 px-2 py-1 rounded">Copiar Link</button>
+                            <button onclick="baixarQR('${item.slug}')" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded ml-2">Baixar QR</button>
+                        </td>
+                    </tr>
+                `).join("");
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
+        }
+
+        async function criarQR() {
+            const slug = document.getElementById("slug").value.trim();
+            const conteudo = document.getElementById("conteudo").value.trim();
+
+            if (!slug || !conteudo) {
+                alert("Preencha slug e conteudo.");
+                return;
+            }
+
+            try {
+                const res = await fetch("/cadastrar", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ slug, conteudo })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || "Nao foi possivel criar o QR Code");
+                }
+
+                document.getElementById("slug").value = "";
+                document.getElementById("conteudo").value = "";
+                await carregarDashboard();
+            } catch (error) {
+                alert("Erro: " + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "/login-view";
+        }
+
+        function copiarLink(slug) {
+            const url = window.location.origin + "/l/" + slug;
+            navigator.clipboard.writeText(url);
+            alert("Link copiado!");
+        }
+
+        function baixarQR(slug) {
+            window.open(`/qr/${slug}.png`, "_blank");
+        }
+
+        carregarDashboard();
+    </script>
+</body>
+</html>

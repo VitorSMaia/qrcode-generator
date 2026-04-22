@@ -1,0 +1,3 @@
+flask
+supabase
+qrcode[pil]
