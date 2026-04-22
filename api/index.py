@@ -26,6 +26,14 @@ def _get_bearer_token() -> str | None:
     return auth_header.replace("Bearer ", "", 1).strip()
 
 
+def _get_user_id_from_token(token: str) -> str | None:
+    try:
+        user = supabase.auth.get_user(token)
+        return getattr(getattr(user, "user", None), "id", None)
+    except Exception:
+        return None
+
+
 @app.route("/")
 def home():
     return redirect("/login-view")
@@ -127,26 +135,41 @@ def dashboard():
 
 
 @app.route("/qrcode/<slug>", methods=["PATCH"])
-def editar_slug(slug: str):
+def editar_link(slug: str):
     token = _get_bearer_token()
     if not token:
         return jsonify({"error": "Token ausente ou invalido"}), 401
 
     data = request.get_json(silent=True) or {}
-    novo_slug = data.get("novo_slug")
-    if not novo_slug:
-        return jsonify({"error": "Campo obrigatorio: novo_slug"}), 400
+    novo_conteudo = data.get("novo_conteudo")
+    if not novo_conteudo:
+        return jsonify({"error": "Campo obrigatorio: novo_conteudo"}), 400
 
     try:
-        supabase.postgrest.auth(token)
-        res = (
-            supabase.table("qrcodes")
-            .update({"slug": novo_slug})
+        user_id = _get_user_id_from_token(token)
+        if not user_id:
+            return jsonify({"error": "Usuario invalido"}), 401
+        if not supabase_admin:
+            return jsonify({"error": "Configuracao ausente: SUPABASE_SERVICE_ROLE_KEY"}), 500
+
+        existente = (
+            supabase_admin.table("qrcodes")
+            .select("id")
             .eq("slug", slug)
+            .eq("user_id", user_id)
+            .limit(1)
             .execute()
         )
-        if not res.data:
+        if not existente.data:
             return jsonify({"error": "QR Code nao encontrado"}), 404
+
+        res = (
+            supabase_admin.table("qrcodes")
+            .update({"conteudo_original": novo_conteudo})
+            .eq("slug", slug)
+            .eq("user_id", user_id)
+            .execute()
+        )
         return jsonify(res.data)
     except Exception as exc:
         return jsonify({"error": str(exc)}), 400
@@ -159,10 +182,24 @@ def excluir_qrcode(slug: str):
         return jsonify({"error": "Token ausente ou invalido"}), 401
 
     try:
-        supabase.postgrest.auth(token)
-        res = supabase.table("qrcodes").delete().eq("slug", slug).execute()
-        if not res.data:
+        user_id = _get_user_id_from_token(token)
+        if not user_id:
+            return jsonify({"error": "Usuario invalido"}), 401
+        if not supabase_admin:
+            return jsonify({"error": "Configuracao ausente: SUPABASE_SERVICE_ROLE_KEY"}), 500
+
+        existente = (
+            supabase_admin.table("qrcodes")
+            .select("id")
+            .eq("slug", slug)
+            .eq("user_id", user_id)
+            .limit(1)
+            .execute()
+        )
+        if not existente.data:
             return jsonify({"error": "QR Code nao encontrado"}), 404
+
+        supabase_admin.table("qrcodes").delete().eq("slug", slug).eq("user_id", user_id).execute()
         return jsonify({"message": "QR Code excluido com sucesso"})
     except Exception as exc:
         return jsonify({"error": str(exc)}), 400
@@ -170,18 +207,34 @@ def excluir_qrcode(slug: str):
 
 @app.route("/l/<slug>", methods=["GET"])
 def ler_qr(slug: str):
+    if not supabase_admin:
+        return "Configuracao ausente: SUPABASE_SERVICE_ROLE_KEY", 500
+
     try:
-        db_client = supabase_admin or supabase
-        response = db_client.table("qrcodes").select("*").eq("slug", slug).limit(1).execute()
+        response = (
+            supabase_admin.table("qrcodes")
+            .select("slug,conteudo_original,contador")
+            .eq("slug", slug)
+            .limit(1)
+            .execute()
+        )
         if not response.data:
             return "QR Code invalido", 404
 
         item = response.data[0]
         novo_contador = int(item.get("contador", 0)) + 1
-        db_client.table("qrcodes").update({"contador": novo_contador}).eq("slug", slug).execute()
+        update_res = (
+            supabase_admin.table("qrcodes")
+            .update({"contador": novo_contador})
+            .eq("slug", slug)
+            .execute()
+        )
+        if not update_res.data:
+            return "Nao foi possivel registrar a leitura", 500
+
         return redirect(item["conteudo_original"])
-    except Exception:
-        return "Erro ao processar QR Code", 500
+    except Exception as exc:
+        return f"Erro ao processar QR Code: {exc}", 500
 
 
 @app.route("/qr/<slug>.png", methods=["GET"])

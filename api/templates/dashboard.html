@@ -63,7 +63,7 @@
                         <td class="p-4">
                             <button onclick="copiarLink('${item.slug}')" class="text-xs bg-gray-200 px-2 py-1 rounded">Copiar Link</button>
                             <button onclick="baixarQR('${item.slug}')" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded ml-2">Baixar QR</button>
-                            <button onclick="editarSlug('${item.slug}')" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">Editar</button>
+                            <button onclick="editarLink('${item.slug}', '${item.conteudo_original}')" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">Editar Link</button>
                             <button onclick="excluirQR('${item.slug}')" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded ml-2">Excluir</button>
                         </td>
                     </tr>
@@ -120,25 +120,25 @@
             window.open(`/qr/${slug}.png`, "_blank");
         }
 
-        async function editarSlug(slugAtual) {
-            const novoSlug = prompt(`Novo identificador para "${slugAtual}":`, slugAtual);
-            if (!novoSlug || novoSlug.trim() === "" || novoSlug === slugAtual) {
+        async function editarLink(slug, conteudoAtual) {
+            const novoConteudo = prompt(`Novo link para "${slug}":`, conteudoAtual);
+            if (!novoConteudo || novoConteudo.trim() === "" || novoConteudo === conteudoAtual) {
                 return;
             }
 
             try {
-                const res = await fetch(`/qrcode/${encodeURIComponent(slugAtual)}`, {
+                const res = await fetch(`/qrcode/${encodeURIComponent(slug)}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-                    body: JSON.stringify({ novo_slug: novoSlug.trim() })
+                    body: JSON.stringify({ novo_conteudo: novoConteudo.trim() })
                 });
 
                 const data = await res.json();
                 if (!res.ok) {
-                    throw new Error(data.error || "Nao foi possivel editar o identificador");
+                    throw new Error(data.error || "Nao foi possivel editar o link");
                 }
 
                 await carregarDashboard();
