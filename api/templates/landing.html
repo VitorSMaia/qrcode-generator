@@ -1,19 +1,10 @@
-<!DOCTYPE html>
-<html lang="pt-br" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7E5GWKNXDL"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-7E5GWKNXDL');
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6001125874185977" crossorigin="anonymous"></script>
-    <title>QR Track — Links dinâmicos com rastreio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+{% extends "components/app.html" %}
+
+{% block title %}QR Track — Links dinâmicos com rastreio{% endblock %}
+
+{% block html_attrs %} class="scroll-smooth"{% endblock %}
+
+{% block head_extra %}
     <script>
         tailwind.config = {
             theme: {
@@ -31,8 +22,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-</head>
-<body class="font-sans antialiased text-slate-100 bg-slate-950 min-h-screen">
+{% endblock %}
+
+{% block body_attrs %} class="font-sans antialiased text-slate-100 bg-slate-950 min-h-screen"{% endblock %}
+
+{% block content %}
     <!-- fundo decorativo -->
     <div class="fixed inset-0 -z-10 overflow-hidden">
         <div class="absolute top-0 left-1/4 h-[500px] w-[500px] rounded-full bg-sky-500/10 blur-[120px]"></div>
@@ -60,9 +54,6 @@
         <section id="gerador" class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
             <div class="grid gap-10 lg:grid-cols-12 lg:gap-12 lg:items-center">
                 <div class="lg:col-span-6">
-                    <p class="mb-3 inline-flex items-center gap-2 rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-sky-300">
-                        QR dinâmico · Supabase · Flask
-                    </p>
                     <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[2.75rem] xl:text-5xl">
                         Um link estável.
                         <span class="bg-gradient-to-r from-sky-300 to-indigo-400 bg-clip-text text-transparent">Destino e métricas</span>
@@ -173,9 +164,11 @@
     </main>
 
     <footer class="border-t border-white/5 py-8 text-center text-sm text-slate-500">
-        <p>QR Track · Flask + Supabase · Deploy na Vercel</p>
+        <p>2026 © QR Track - Todos os direitos reservados</p>
     </footer>
+{% endblock %}
 
+{% block scripts %}
     <script type="module">
         import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm';
 
@@ -238,9 +231,4 @@
 
         void gerar();
     </script>
-    <script type="module">
-        import { inject } from "https://esm.sh/@vercel/analytics@1.5.0";
-        inject();
-    </script>
-</body>
-</html>
+{% endblock %}

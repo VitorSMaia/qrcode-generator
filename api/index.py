@@ -54,6 +54,12 @@ def dashboard_view():
     return render_template("dashboard.html")
 
 
+@app.route("/assets/qr-icon.png")
+def qr_icon():
+    icon_path = os.path.join(app.root_path, "templates", "images", "QR.png")
+    return send_file(icon_path, mimetype="image/png")
+
+
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json(silent=True) or {}

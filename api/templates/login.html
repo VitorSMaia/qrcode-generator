@@ -1,21 +1,10 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7E5GWKNXDL"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-7E5GWKNXDL');
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6001125874185977" crossorigin="anonymous"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>QR Tracker - Login</title>
-</head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+{% extends "components/app.html" %}
+
+{% block title %}QR Tracker - Login{% endblock %}
+
+{% block body_attrs %} class="bg-gray-100 flex items-center justify-center h-screen"{% endblock %}
+
+{% block content %}
     <div class="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 id="form-title" class="text-2xl font-bold mb-6 text-center text-indigo-600">Login</h2>
         <div class="space-y-4">
@@ -27,7 +16,9 @@
             </p>
         </div>
     </div>
+{% endblock %}
 
+{% block scripts %}
     <script>
         let isLogin = true;
 
@@ -74,9 +65,4 @@
             }
         }
     </script>
-    <script type="module">
-        import { inject } from "https://esm.sh/@vercel/analytics@1.5.0";
-        inject();
-    </script>
-</body>
-</html>
+{% endblock %}

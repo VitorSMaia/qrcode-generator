@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br"{% block html_attrs %}{% endblock %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/assets/qr-icon.png">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7E5GWKNXDL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-7E5GWKNXDL');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6001125874185977" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="/assets/qr-icon.png">
+    <title>{% block title %}QR Track{% endblock %}</title>
+    {% block head_extra %}{% endblock %}
+</head>
+<body{% block body_attrs %}{% endblock %}>
+    {% block content %}{% endblock %}
+    {% block scripts %}{% endblock %}
+    <script type="module">
+        import { inject } from "https://esm.sh/@vercel/analytics@1.5.0";
+        inject();
+    </script>
+</body>
+</html>
